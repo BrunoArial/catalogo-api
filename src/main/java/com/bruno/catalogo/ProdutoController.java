@@ -2,6 +2,7 @@ package com.bruno.catalogo;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController 
 public class ProdutoController {
@@ -11,8 +12,13 @@ public class ProdutoController {
         this.produtoService = produtoService;
     }
 
-    @GetMapping("/produtos")
+    @GetMapping("/produtos/")
     public List<Produto> listar() {
         return produtoService.listar();
+    }
+
+    @GetMapping("/produtos/{id}")
+    public Produto buscarPorId(@PathVariable Long id) {
+        return produtoService.buscarPorId(id);
     }
 }

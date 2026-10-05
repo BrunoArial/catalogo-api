@@ -5,10 +5,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProdutoService {
+
     public List<Produto> listar() {
         Produto produto1 = new Produto(1L, "Teclado", new BigDecimal("150.00"));
         Produto produto2 = new Produto(2L, "Mouse", new BigDecimal("80.00"));
 
         return List.of(produto1, produto2);
+    }
+
+    public Produto buscarPorId(Long id) { 
+        for (Produto produto : listar()) {
+            if (produto.getId().equals(id)) {
+                return produto;
+            }
+        }
+        throw new ProdutoNaoEncontradoException("Produto não encontrado.");
     }
 }
