@@ -22,4 +22,8 @@ public class ProdutoService {
         }
         throw new ProdutoNaoEncontradoException("Produto não encontrado.");
     }
+
+    public Produto cadastrar(ProdutoRequest request) {
+        return produtoRepository.cadastrar(request.getNome(), request.getPreco());
+    }
 }

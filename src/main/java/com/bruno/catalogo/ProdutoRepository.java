@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Repository
 public class ProdutoRepository {
     private final List<Produto> produtos = new ArrayList<>();
+    private Long proximoId = 3L;
 
     public ProdutoRepository() {
         Produto produto1 = new Produto(1L, "Teclado", new BigDecimal("150.00"));
@@ -17,5 +18,12 @@ public class ProdutoRepository {
 
     public List<Produto> listar() {
         return List.copyOf(produtos);
+    }
+
+    public Produto cadastrar(String nome, BigDecimal preco) {
+        Produto novoProduto = new Produto(proximoId, nome, preco);
+        produtos.add(novoProduto);
+        proximoId++;
+        return novoProduto;
     }
 }
