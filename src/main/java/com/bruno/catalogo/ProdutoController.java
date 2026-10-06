@@ -12,7 +12,7 @@ public class ProdutoController {
         this.produtoService = produtoService;
     }
 
-    @GetMapping("/produtos/")
+    @GetMapping("/produtos")
     public List<Produto> listar() {
         return produtoService.listar();
     }
