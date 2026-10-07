@@ -26,4 +26,8 @@ public class ProdutoRepository {
         proximoId++;
         return novoProduto;
     }
+
+    public void remover(Produto produto) {
+        produtos.remove(produto);
+    }
 }

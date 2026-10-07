@@ -32,4 +32,9 @@ public class ProdutoService {
         produto.atualizarDados(request.getNome(), request.getPreco());
         return produto;
     }
+
+    public void remover(Long id) {
+        Produto produto = buscarPorId(id);
+        produtoRepository.remover(produto);
+    }
 }

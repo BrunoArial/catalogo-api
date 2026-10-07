@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController 
 public class ProdutoController {
@@ -37,5 +38,11 @@ public class ProdutoController {
     @PutMapping("/produtos/{id}")
     public Produto atualizar(@PathVariable("id") Long id, @RequestBody ProdutoRequest request) {
         return produtoService.atualizar(id, request);
+    }
+
+    @DeleteMapping("/produtos/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remover(@PathVariable Long id) {
+        produtoService.remover(id);
     }
 }
