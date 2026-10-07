@@ -26,4 +26,10 @@ public class ProdutoService {
     public Produto cadastrar(ProdutoRequest request) {
         return produtoRepository.cadastrar(request.getNome(), request.getPreco());
     }
+
+    public Produto atualizar(Long id, ProdutoRequest request) {
+        Produto produto = buscarPorId(id);
+        produto.atualizarDados(request.getNome(), request.getPreco());
+        return produto;
+    }
 }

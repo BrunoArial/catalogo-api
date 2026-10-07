@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController 
 public class ProdutoController {
@@ -31,5 +32,10 @@ public class ProdutoController {
     @ResponseStatus(HttpStatus.CREATED)
     public Produto cadastrar(@RequestBody ProdutoRequest request) {
         return produtoService.cadastrar(request);
+    }
+
+    @PutMapping("/produtos/{id}")
+    public Produto atualizar(@PathVariable("id") Long id, @RequestBody ProdutoRequest request) {
+        return produtoService.atualizar(id, request);
     }
 }

@@ -23,5 +23,9 @@ public class Produto {
     public BigDecimal getPreco() {
         return preco;
     }
-    
+
+    public void atualizarDados(String nome, BigDecimal preco) {
+        this.nome = nome;
+        this.preco = preco;
+    }
 }
