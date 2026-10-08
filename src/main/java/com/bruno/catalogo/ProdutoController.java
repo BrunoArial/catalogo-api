@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
 
 @RestController 
 public class ProdutoController {
@@ -20,25 +22,33 @@ public class ProdutoController {
     }
 
     @GetMapping("/produtos")
-    public List<Produto> listar() {
-        return produtoService.listar();
+    public List<ProdutoResponse> listar() {
+        ArrayList<ProdutoResponse> produtosResponse = new ArrayList<>();
+        for (Produto produto : produtoService.listar()) {
+            produtosResponse.add(new ProdutoResponse(produto.getId(), produto.getNome(), produto.getPreco()));
+        }
+        return produtosResponse;
     }
 
     @GetMapping("/produtos/{id}")
-    public Produto buscarPorId(@PathVariable Long id) {
-        return produtoService.buscarPorId(id);
+    public ProdutoResponse buscarPorId(@PathVariable Long id) {
+        Produto produto = produtoService.buscarPorId(id);
+        return new ProdutoResponse(produto.getId(), produto.getNome(), produto.getPreco());
     }
 
     @PostMapping("/produtos")
     @ResponseStatus(HttpStatus.CREATED)
-    public Produto cadastrar(@RequestBody ProdutoRequest request) {
-        return produtoService.cadastrar(request);
+    public ProdutoResponse cadastrar(@Valid @RequestBody ProdutoRequest request) {
+        Produto produto = produtoService.cadastrar(request);
+        return new ProdutoResponse(produto.getId(), produto.getNome(), produto.getPreco());
     }
 
     @PutMapping("/produtos/{id}")
-    public Produto atualizar(@PathVariable("id") Long id, @RequestBody ProdutoRequest request) {
-        return produtoService.atualizar(id, request);
+    public ProdutoResponse atualizar(@PathVariable("id") Long id, @Valid @RequestBody ProdutoRequest request) {
+        Produto produto = produtoService.atualizar(id, request);
+        return new ProdutoResponse(produto.getId(), produto.getNome(), produto.getPreco());
     }
+    
 
     @DeleteMapping("/produtos/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
