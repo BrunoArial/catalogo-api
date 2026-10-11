@@ -11,30 +11,26 @@ public class ProdutoService {
     }
 
     public List<Produto> listar() {
-        return produtoRepository.listar();
+        return produtoRepository.findAll();
     }
 
     public Produto buscarPorId(Long id) { 
-        for (Produto produto : listar()) {
-            if (produto.getId().equals(id)) {
-                return produto;
-            }
-        }
-        throw new ProdutoNaoEncontradoException("Produto não encontrado.");
+        return produtoRepository.findById(id).orElseThrow(() -> new ProdutoNaoEncontradoException("Produto não encontrado."));
     }
 
     public Produto cadastrar(ProdutoRequest request) {
-        return produtoRepository.cadastrar(request.getNome(), request.getPreco());
+        Produto produto = new Produto(request.getNome(),request.getPreco());
+        return produtoRepository.save(produto);
     }
 
     public Produto atualizar(Long id, ProdutoRequest request) {
         Produto produto = buscarPorId(id);
         produto.atualizarDados(request.getNome(), request.getPreco());
-        return produto;
+        return produtoRepository.save(produto);
     }
 
     public void remover(Long id) {
         Produto produto = buscarPorId(id);
-        produtoRepository.remover(produto);
+        produtoRepository.delete(produto);
     }
 }
