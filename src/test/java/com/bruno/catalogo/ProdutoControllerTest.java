@@ -14,11 +14,13 @@ import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @WebMvcTest(ProdutoController.class)
 public class ProdutoControllerTest {
@@ -126,5 +128,33 @@ public class ProdutoControllerTest {
 
         assertEquals("Monitor", requestRecebido.getNome());
         assertEquals(new BigDecimal("950.00"), requestRecebido.getPreco());
+    }
+
+    @Test
+    void deveAtualizarProdutoValido() throws Exception {
+        Produto produtoAtualizado = new Produto(1L, "Monitor IPS", new BigDecimal("1100.00"));
+        when(produtoService.atualizar(eq(1L), any(ProdutoRequest.class))).thenReturn(produtoAtualizado);
+
+        String json = """
+        {
+            "nome": "Monitor IPS",
+            "preco": 1100.00
+        }
+        """;
+
+        mockMvc.perform(put("/produtos/1").contentType(MediaType.APPLICATION_JSON).content(json))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.nome").value("Monitor IPS"))
+            .andExpect(jsonPath("$.preco").value(1100.00));
+
+        ArgumentCaptor<ProdutoRequest> captor = ArgumentCaptor.forClass(ProdutoRequest.class);
+
+        verify(produtoService).atualizar(eq(1L), captor.capture());
+
+        ProdutoRequest requestRecebido = captor.getValue();
+
+        assertEquals("Monitor IPS", requestRecebido.getNome());
+        assertEquals(new BigDecimal("1100.00"), requestRecebido.getPreco());
     }
 }
