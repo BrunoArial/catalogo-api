@@ -243,31 +243,78 @@ A senha real não é armazenada nos arquivos de configuração: eles contêm ape
 
 ## Testes automatizados
 
-O projeto possui 12 testes:
+O projeto possui 17 testes:
 
 | Classe | Quantidade | Escopo |
 |---|---|---|
 | `ProdutoServiceTest` | 6 | Busca, atualização e remoção com repository simulado |
-| `ProdutoControllerTest` | 5 | GET, erro 404 e validação de POST e PUT com MockMvc |
+| `ProdutoControllerTest` | 10 | Consultas, cadastro, atualização, remoção, validação e erros HTTP com MockMvc e service simulado |
 | `CatalogoApiApplicationTests` | 1 | Inicialização do contexto completo com PostgreSQL |
+
+### Cenários verificados
+
+Os testes do service verificam:
+
+- Busca de produto existente e exceção para produto inexistente.
+- Atualização de nome e preço mantendo o ID, com solicitação de salvamento.
+- Tentativa de atualizar produto inexistente sem solicitar salvamento.
+- Remoção de produto existente com chamada ao repository.
+- Tentativa de remover produto inexistente sem solicitar exclusão.
+
+Os testes do controller verificam:
+
+- Consulta por ID com resposta `200` e os dados do produto.
+- Consulta de produto inexistente com resposta `404` e JSON de erro.
+- Cadastro válido com resposta `201`, dados de saída e conferência dos dados encaminhados ao service.
+- Cadastro inválido e cadastro sem preço com resposta `400` e mensagens de validação.
+- Atualização válida com resposta `200`, dados de saída e conferência do ID e dos dados encaminhados ao service.
+- Atualização inválida com resposta `400` e atualização de produto inexistente com resposta `404`.
+- Remoção bem-sucedida com resposta `204`, corpo vazio e chamada ao service com o ID correto.
+- Remoção de produto inexistente com resposta `404`, JSON de erro e chamada ao service com o ID correto.
+
+Os testes utilizam recursos como `ArgumentCaptor`, matchers e verificações de interação do Mockito. Para simular uma exceção no método de remoção, que retorna `void`, é utilizado `doThrow`.
+
+### Executar os testes
 
 Os testes do service e do controller não acessam o banco. O teste de inicialização depende do PostgreSQL, do banco `catalogo_test` e de `DB_PASSWORD`.
 
-Execute a suíte completa no terminal com a variável definida:
-
-```powershell
-.\mvnw.cmd test
-```
-
-Para executar somente os 11 testes que não dependem do banco:
+Para executar somente os 16 testes que não dependem do banco:
 
 ```powershell
 .\mvnw.cmd "-Dtest=ProdutoServiceTest,ProdutoControllerTest" test
 ```
 
+Para executar apenas os 10 testes do controller:
+
+```powershell
+.\mvnw.cmd "-Dtest=ProdutoControllerTest" test
+```
+
+Para executar a suíte completa de 17 testes, mantenha o PostgreSQL em execução e defina `DB_PASSWORD` no mesmo terminal:
+
+```powershell
+$env:DB_PASSWORD = 'SUA_SENHA_REAL'
+.\mvnw.cmd test
+```
+
+Substitua `SUA_SENHA_REAL` pela senha do usuário configurado. A API não precisa estar rodando na porta 8080 para executar os testes.
+
+### Alcance e resultado das verificações
+
+Os testes de service executam sua implementação real com o repository simulado. Os testes do controller exercitam a camada web com o service simulado. Eles verificam o comportamento de cada camada, mas não comprovam alterações reais no PostgreSQL.
+
 O teste de inicialização verifica o carregamento do contexto e a configuração de persistência. Ele não substitui testes automatizados de CRUD no banco.
 
 A permanência de cadastros, atualizações e exclusões após reiniciar a API foi verificada manualmente.
+
+Na execução conjunta mais recente, em 21/10/2026, os 16 testes de service e controller passaram:
+
+```text
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+A execução completa dos 17 testes e a repetição de `clean package` após a ampliação da suíte ainda estão pendentes.
 
 ## Build
 
@@ -297,4 +344,4 @@ O projeto foi concluído como uma API educacional de catálogo de produtos, com 
 
 Não inclui autenticação, paginação, interface gráfica ou migrations. O uso de `ddl-auto=update` e do usuário `postgres` faz parte da configuração local de estudo.
 
-A suíte completa e o comando `clean package` foram executados com 12 testes passando e resultado `BUILD SUCCESS`.
+O escopo funcional está concluído. A suíte foi ampliada com novos cenários da camada web; o estado atual das execuções está documentado na seção de testes automatizados.
