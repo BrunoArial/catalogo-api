@@ -7,8 +7,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,6 +20,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -156,5 +159,43 @@ public class ProdutoControllerTest {
 
         assertEquals("Monitor IPS", requestRecebido.getNome());
         assertEquals(new BigDecimal("1100.00"), requestRecebido.getPreco());
+    }
+
+    @Test
+    void deveRetornar404AoAtualizarProdutoInexistente() throws Exception {
+        when(produtoService.atualizar(eq(99L), any(ProdutoRequest.class))).thenThrow(new ProdutoNaoEncontradoException("Produto não encontrado."));
+
+        String json = """
+        {
+            "nome": "Monitor IPS",
+            "preco": 1100.00
+        }
+        """;
+
+        mockMvc.perform(put("/produtos/99").contentType(MediaType.APPLICATION_JSON).content(json))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.mensagem").value("Produto não encontrado."))
+            .andExpect(jsonPath("$.erros").isEmpty());
+    }
+
+    @Test
+    void deveRemoverProdutoExistente() throws Exception {
+        mockMvc.perform(delete("/produtos/1"))
+            .andExpect(status().isNoContent())
+            .andExpect(content().string(""));
+
+        verify(produtoService).remover(1L);
+    }
+
+    @Test
+    void deveRetornar404AoRemoverProdutoInexistente() throws Exception {
+        doThrow(new ProdutoNaoEncontradoException("Produto não encontrado.")).when(produtoService).remover(99L);
+
+        mockMvc.perform(delete("/produtos/99"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.mensagem").value("Produto não encontrado."))
+            .andExpect(jsonPath("$.erros").isEmpty());
+
+        verify(produtoService).remover(99L);
     }
 }
